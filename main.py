@@ -39,14 +39,18 @@ import random
 import asyncio
 import os
 import importlib
+
+
 class BotDefinition:
+
     def __init__(self, bot, room_id, api_token):
         self.bot = bot
         self.room_id = room_id
         self.api_token = api_token
 
+
 class Bot(BaseBot):
-    
+
     async def on_start(self, SessionMetadata: SessionMetadata) -> None:
         try:
             await self.highrise.walk_to(Position(18., 0., .19, "FrontLeft"))
@@ -54,83 +58,109 @@ class Bot(BaseBot):
         except Exception as e:
             print(f"error : {e}")
 
-    async def on_reaction(self, user: User, reaction: Reaction, receiver: User) -> None:
+    async def on_reaction(self, user: User, reaction: Reaction,
+                          receiver: User) -> None:
         text_to_emoji = {
-        "göz kırpma": "😉",
-        "dalga": "👋",
-        "tamamdır": "👍",
-        "kalp": "❤️",
-        "alkış": "👏",
+            "göz kırpma": "😉",
+            "dalga": "👋",
+            "tamamdır": "👍",
+            "kalp": "❤️",
+            "alkış": "👏",
         }
-        await self.highrise.chat(f"\n{user.username} {text_to_emoji[reaction]} {receiver.username}")
+        await self.highrise.chat(
+            f"\n{user.username} {text_to_emoji[reaction]} {receiver.username}")
 
     async def on_user_join(self, user: User) -> None:
         try:
             print(f"{user.username} Joined Room.")
             wm = [
-            'HOŞGELDİN CANIM BENİM!',
-            'ORALET BEY HOŞ.GELDİNİZ!',
-            'KONUŞ YADA DESTEK BAS 🥹',
-            'OOO NE İSTERSİNİZ EFENDİM.',
-            'Oha kim gelmiş.',
-            'HOŞ GELDİN ORALETİM.',
+                'HOŞGELDİN CANIM BENİM!',
+                'ORALET BEY HOŞ.GELDİNİZ!',
+                'KONUŞ YADA DESTEK BAS 🥹',
+                'OOO NE İSTERSİNİZ EFENDİM.',
+                'Oha kim gelmiş.',
+                'HOŞ GELDİN ORALETİM.',
             ]
             rwm = random.choice(wm)
-            await self.highrise.send_whisper(user.id, f"Hey {user.username}\n{rwm}")
-            await self.highrise.send_whisper(user.id, f"\n[📢] KOMUTLAR İÇİN !help")
-            face = ["FrontRight","FrontLeft"]
+            await self.highrise.send_whisper(user.id,
+                                             f"Hey {user.username}\n{rwm}")
+            await self.highrise.send_whisper(user.id,
+                                             f"\n[📢] KOMUTLAR İÇİN !help")
+            face = ["FrontRight", "FrontLeft"]
             fp = random.choice(face)
-            #Change co-ordinates according to your room 
-            
+            #Change co-ordinates according to your room
+
             __ = random.choice(_)
             await self.highrise.teleport(user.id, __)
         except Exception as e:
             print(f"error : {e}")
-            
+
     async def on_chat(self, user: User, message: str):
         try:
-            _bid = "64ecda7f2bf86b0bfebc5e6b" #Bot user.id here
+            _bid = "64ecda7f2bf86b0bfebc5e6b"  #Bot user.id here
             _id = f"1_on_1:{_bid}:{user.id}"
             _idx = f"1_on_1:{user.id}:{_bid}"
-            _rid = "64ecda7f2bf86b0bfebc5e6b" #Room ID Here
+            _rid = "64ecda7f2bf86b0bfebc5e6b"  #Room ID Here
             if message.lower().lstrip().startswith(("!invite", "-invite")):
                 parts = message[1:].split()
                 args = parts[1:]
 
                 if len(args) < 1:
-                    await self.highrise.send_whisper(user.id, "\nKullanım: !invite <@kullanıcıadı> veya -invite <@kullanıcıadı> Bu komut, hedeflenen kullanıcı adına oda daveti gönderecektir. geçmişte botumuzla etkileşime girip girmedikleri\n • Örnek: !invite @rainox")
+                    await self.highrise.send_whisper(
+                        user.id,
+                        "\nKullanım: !invite <@kullanıcıadı> veya -invite <@kullanıcıadı> Bu komut, hedeflenen kullanıcı adına oda daveti gönderecektir. geçmişte botumuzla etkileşime girip girmedikleri\n • Örnek: !invite @rainox"
+                    )
                     return
                 elif args[0][0] != "@":
-                    await self.highrise.send_whisper(user.id, f"Geçersiz kullanıcı biçimi. Lütfen '@kullanıcı adı'nı kullanın.")
+                    await self.highrise.send_whisper(
+                        user.id,
+                        f"Geçersiz kullanıcı biçimi. Lütfen '@kullanıcı adı'nı kullanın."
+                    )
                     return
 
                 url = f"https://webapi.highrise.game/users?&username={args[0][1:]}&sort_order=asc&limit=1"
                 response = requests.get(url)
                 data = response.json()
                 users = data['users']
-                
+
                 for user in users:
                     user_id = user['user_id']
                     __id = f"1_on_1:{_bid}:{user_id}"
                     __idx = f"1_on_1:{user_id}:{_bid}"
-                    __rid = "64ecda7f2bf86b0bfebc5e6b" #Room ID Here
+                    __rid = "64ecda7f2bf86b0bfebc5e6b"  #Room ID Here
                     try:
-                        await self.highrise.send_message(__id, "Join Room", "invite", __rid)
+                        await self.highrise.send_message(
+                            __id, "Join Room", "invite", __rid)
                     except:
-                        await self.highrise.send_message(__idx, "Join Room", "invite", __rid)
+                        await self.highrise.send_message(
+                            __idx, "Join Room", "invite", __rid)
 
             if message.lower().lstrip().startswith(("-help", "!help")):
-                await self.highrise.chat(f"\kullanabileceginiz komutlar:\n • !emote veya -emote\n • !invite veya -invite\n • !feedback\n • çift/arkadaşça komut\n !punk @kullanıcıadı\n !fight @kullanıcıadı \n !uwu @kullanıcıadı \n Örnek : !punk @rainox ")
+                await self.highrise.chat(
+                    f"\kullanabileceginiz komutlar:\n • !emote veya -emote\n • !invite veya -invite\n • !feedback\n • çift/arkadaşça komut\n !punk @kullanıcıadı\n !fight @kullanıcıadı \n !uwu @kullanıcıadı \n Örnek : !punk @rainox "
+                )
 
             if message.lower().lstrip().startswith("!geri bildirim"):
                 try:
-                    await self.highrise.send_message(_id, "• [ Submit Feedback ]\Odamıza katıldığınız için teşekkür ederiz! Görüşlerinize değer veriyoruz. Çevremizi geliştirmek için lütfen geri bildirimlerinizi/önerilerinizi @rainox ile paylaşın. Katkılarınız değerlidir ve gelişmemize yardımcı olacaktır.\ve bir yaranız olsun", "text")
+                    await self.highrise.send_message(
+                        _id,
+                        "• [ Submit Feedback ]\Odamıza katıldığınız için teşekkür ederiz! Görüşlerinize değer veriyoruz. Çevremizi geliştirmek için lütfen geri bildirimlerinizi/önerilerinizi @rainox ile paylaşın. Katkılarınız değerlidir ve gelişmemize yardımcı olacaktır.\ve bir yaranız olsun",
+                        "text")
                 except:
-                    await self.highrise.send_message(_idx, "• [ Submit Feedback ]\Odamıza katıldığınız için teşekkür ederiz! Görüşlerinize değer veriyoruz. Çevremizi geliştirmek için lütfen geri bildirimlerinizi/önerilerinizi @rainox ile paylaşın. Katkılarınız değerlidir ve gelişmemize yardımcı olacaktır.\n\nBir merak edin", "text")
-                    
+                    await self.highrise.send_message(
+                        _idx,
+                        "• [ Submit Feedback ]\Odamıza katıldığınız için teşekkür ederiz! Görüşlerinize değer veriyoruz. Çevremizi geliştirmek için lütfen geri bildirimlerinizi/önerilerinizi @rainox ile paylaşın. Katkılarınız değerlidir ve gelişmemize yardımcı olacaktır.\n\nBir merak edin",
+                        "text")
+
             if message.lower().lstrip().startswith(("-emote", "!emote")):
-                await self.highrise.send_whisper(user.id, "\nEmote odamızda sadece EMOTE ADI yazılarak kullanılabilir. İşte ifade kullanımının\n gündelik\n moda tutkunu\n yüzen\n\nve diğer tüm ifadelerin herhangi bir ifadenin odasında yalnızca adını söylemesinin bir örneği")
-                await self.highrise.send_whisper(user.id, "\n• Bu komutların yalnızca @The.Dark.Hornet 'in   adlı odada çalışacağını unutmayın. kısıtlamalar nedeniyle bazı ifadeler çalışmayabilir.")
+                await self.highrise.send_whisper(
+                    user.id,
+                    "\nEmote odamızda sadece EMOTE ADI yazılarak kullanılabilir. İşte ifade kullanımının\n gündelik\n moda tutkunu\n yüzen\n\nve diğer tüm ifadelerin herhangi bir ifadenin odasında yalnızca adını söylemesinin bir örneği"
+                )
+                await self.highrise.send_whisper(
+                    user.id,
+                    "\n• Bu komutların yalnızca @The.Dark.Hornet 'in   adlı odada çalışacağını unutmayın. kısıtlamalar nedeniyle bazı ifadeler çalışmayabilir."
+                )
 
             if message.lstrip().startswith(("!fight", "!uwu", "!punk")):
                 response = await self.highrise.get_room_users()
@@ -138,35 +168,52 @@ class Bot(BaseBot):
                 usernames = [user.username.lower() for user in users]
                 parts = message[1:].split()
                 args = parts[1:]
-        
+
                 if len(args) < 1:
-                    await self.highrise.send_whisper(user.id, f"Kullanım: !{parçalar[0]} <@kullanıcı adı>")
+                    await self.highrise.send_whisper(
+                        user.id, f"Kullanım: !{parçalar[0]} <@kullanıcı adı>")
                     return
                 elif args[0][0] != "@":
-                    await self.highrise.send_whisper(user.id, f"Invalid user format. Please use '@username'.")
+                    await self.highrise.send_whisper(
+                        user.id,
+                        f"Invalid user format. Please use '@username'.")
                     return
                 elif args[0][1:].lower() not in usernames:
-                    await self.highrise.send_whisper(user.id, f"{args[0][1:]} is not in the room.")
+                    await self.highrise.send_whisper(
+                        user.id, f"{args[0][1:]} is not in the room.")
                     return
-        
-                user_id = next((u.id for u in users if u.username.lower() == args[0][1:].lower()), None)
+
+                user_id = next((u.id for u in users
+                                if u.username.lower() == args[0][1:].lower()),
+                               None)
                 if not user_id:
-                    await self.highrise.send_whisper(user.id, f"User {args[0][1:]} not found")
+                    await self.highrise.send_whisper(
+                        user.id, f"User {args[0][1:]} not found")
                     return
-        
+
                 try:
                     if message.startswith("!fight"):
-                        await self.highrise.chat(f"\n🥷 @{user.username} VE @{args[0][1:]} KAPIŞIYOR")
-                        await self.highrise.send_emote("emote-swordfight", user.id)
-                        await self.highrise.send_emote("emote-swordfight", user_id)
+                        await self.highrise.chat(
+                            f"\n🥷 @{user.username} VE @{args[0][1:]} KAPIŞIYOR"
+                        )
+                        await self.highrise.send_emote("emote-swordfight",
+                                                       user.id)
+                        await self.highrise.send_emote("emote-swordfight",
+                                                       user_id)
                     elif message.startswith("!uwu"):
-                        await self.highrise.chat(f"\n @{user.username} ve @{args[0][1:]} çok tatlılarr")
+                        await self.highrise.chat(
+                            f"\n @{user.username} ve @{args[0][1:]} çok tatlılarr"
+                        )
                         await self.highrise.send_emote("idle-uwu", user.id)
                         await self.highrise.send_emote("idle-uwu", user_id)
                     elif message.startswith("!punk"):
-                        await self.highrise.chat(f"\n Hey @{user.username} ve @{args[0][1:]} ooo çok havalilar")
-                        await self.highrise.send_emote("emote-punkguitar", user.id)
-                        await self.highrise.send_emote("emote-punkguitar", user_id)
+                        await self.highrise.chat(
+                            f"\n Hey @{user.username} ve @{args[0][1:]} ooo çok havalilar"
+                        )
+                        await self.highrise.send_emote("emote-punkguitar",
+                                                       user.id)
+                        await self.highrise.send_emote("emote-punkguitar",
+                                                       user_id)
                 except Exception as e:
                     print(f"An exception occurred[Due To {parts[0][1:]}]: {e}")
 
@@ -175,23 +222,74 @@ class Bot(BaseBot):
                 item_top = random.choice(shirt)
                 item_bottom = random.choice(pant)
                 xox = await self.highrise.set_outfit(outfit=[
-                        Item(type='clothing', amount=1, id='body-flesh', account_bound=False, active_palette=65),
-                        Item(type='clothing', amount=1, id=item_top, account_bound=False, active_palette=-1),
-                        Item(type='clothing', amount=1, id=item_bottom, account_bound=False, active_palette=-1),
-
-                        Item(type='clothing', amount=1, id='nose-n_01', account_bound=False, active_palette=-1),
-                        Item(type='clothing', amount=1, id='watch-n_room32019blackwatch', account_bound=False, active_palette=-1),
-                        Item(type='clothing', amount=1, id='glasses-n_room12019circleframes', account_bound=False, active_palette=-1),
-                        Item(type='clothing', amount=1, id='shoes-n_room12019sneakersblack', account_bound=False, active_palette=-1),
-                        Item(type='clothing', amount=1, id='mouth-basic2018downturnedthinround', account_bound=False, active_palette=0),
-                        Item(type='clothing', amount=1, id='hair_front-n_malenew07', account_bound=False, active_palette=1),
-                        Item(type='clothing', amount=1, id='hair_back-n_malenew07', account_bound=False, active_palette=1),
-                        Item(type='clothing', amount=1, id='bag-n_room12019backpack', account_bound=False, active_palette=-1),
-                        Item(type='clothing', amount=1, id='eye-n_basic2018zanyeyes', account_bound=False, active_palette=-1),
-                        Item(type='clothing', amount=1, id='eyebrow-n_basic2018newbrows09', account_bound=False, active_palette=-1)
+                    Item(type='clothing',
+                         amount=1,
+                         id='body-flesh',
+                         account_bound=False,
+                         active_palette=65),
+                    Item(type='clothing',
+                         amount=1,
+                         id=item_top,
+                         account_bound=False,
+                         active_palette=-1),
+                    Item(type='clothing',
+                         amount=1,
+                         id=item_bottom,
+                         account_bound=False,
+                         active_palette=-1),
+                    Item(type='clothing',
+                         amount=1,
+                         id='nose-n_01',
+                         account_bound=False,
+                         active_palette=-1),
+                    Item(type='clothing',
+                         amount=1,
+                         id='watch-n_room32019blackwatch',
+                         account_bound=False,
+                         active_palette=-1),
+                    Item(type='clothing',
+                         amount=1,
+                         id='glasses-n_room12019circleframes',
+                         account_bound=False,
+                         active_palette=-1),
+                    Item(type='clothing',
+                         amount=1,
+                         id='shoes-n_room12019sneakersblack',
+                         account_bound=False,
+                         active_palette=-1),
+                    Item(type='clothing',
+                         amount=1,
+                         id='mouth-basic2018downturnedthinround',
+                         account_bound=False,
+                         active_palette=0),
+                    Item(type='clothing',
+                         amount=1,
+                         id='hair_front-n_malenew07',
+                         account_bound=False,
+                         active_palette=1),
+                    Item(type='clothing',
+                         amount=1,
+                         id='hair_back-n_malenew07',
+                         account_bound=False,
+                         active_palette=1),
+                    Item(type='clothing',
+                         amount=1,
+                         id='bag-n_room12019backpack',
+                         account_bound=False,
+                         active_palette=-1),
+                    Item(type='clothing',
+                         amount=1,
+                         id='eye-n_basic2018zanyeyes',
+                         account_bound=False,
+                         active_palette=-1),
+                    Item(type='clothing',
+                         amount=1,
+                         id='eyebrow-n_basic2018newbrows09',
+                         account_bound=False,
+                         active_palette=-1)
                 ])
                 await self.highrise.chat(f"{xox}")
-          
+
             if message.lower().strip() == "lambipose":
                 await self.highrise.send_emote("emote-superpose", user.id)
             elif message.lower().strip() == "tiktok10":
@@ -263,7 +361,8 @@ class Bot(BaseBot):
             elif message.lower().strip() == "ropepull":
                 await self.highrise.send_emote("emote-ropepull", user.id)
             elif message.lower().strip() == "secrethandshake":
-                await self.highrise.send_emote("emote-secrethandshake", user.id)
+                await self.highrise.send_emote("emote-secrethandshake",
+                                               user.id)
             elif message.lower().strip() == "elbowbump":
                 await self.highrise.send_emote("emote-elbowbump", user.id)
             elif message.lower().strip() == "homerun":
@@ -573,7 +672,7 @@ class Bot(BaseBot):
             elif message.lower().strip() == "punk":
                 await self.highrise.send_emote("emote-punkguitar", user.id)
             elif message.lower().strip() == "guitar":
-                 await self.highrise.send_emote("emote-punkguitar", user.id)
+                await self.highrise.send_emote("emote-punkguitar", user.id)
             elif message.lower().strip() == "icecream":
                 await self.highrise.send_emote("dance-icecream", user.id)
             elif message.lower().strip() == "gravity":
@@ -590,13 +689,14 @@ class Bot(BaseBot):
                 await self.highrise.send_emote("dance-wrong", user.id)
         except Exception as e:
             print(f"Error : {e}")
-          
+
     async def run(self, room_id, token):
         definitions = [BotDefinition(self, room_id, token)]
         await __main__.main(definitions)
 
+
 keep_alive()
 if __name__ == "__main__":
-    room_id = "64fcc90bf9ca3a976de08e20"
-    token = ""
+    room_id = "686681704c60b715a742628a"
+    token = "b5d62b7a2144124c8b0e5558c62bda8ee98302ae19c36f25501340c41fbcad12"
     arun(Bot().run(room_id, token))
