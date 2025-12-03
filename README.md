@@ -3,12 +3,16 @@
 This is a feature-rich bot for the Highrise metaverse platform, built in Python using the `highrise-bot-sdk`.
 
 ## Features
-
+*   **Auto Welcome Messages:** Customizable Auto Welcome Messages for User.
+*   **Emote Commands:** Over 200+ Emotes for users.
+*   **Custom Teleportation System:** Teleport Users with a Single Command with Customizable Teleport Points.
 *   **Moderation:** Ban, kick, and mute users.
-*   **User Interaction:** Jokes, facts, quotes, emotes, and reactions.
+*   **Role Based Access:** Role Based Actions for Room Owner, Room Moderator, VIP and Basic User.
+*   **User Interaction:** Jokes, facts, quotes, and reactions.
 *   **VIP System:** Manage VIP users based on tips.
-*   **AI Integration:** AI-powered emotes.
+*   **AI Integration:** Real time AI-powered responses and emotes.
 *   **External Integrations:** News API and Discord webhook integration.
+*   **Reminder System:** Still Implementing.
 *   **And much more!**
 
 ## Getting Started
