@@ -1,6 +1,10 @@
-from highrise import BaseBot, SessionMetadata
+from highrise import *
+from highrise.webapi import *
+from highrise.models_webapi import *
+from highrise.models import *
 import asyncio
 import os
+from config import BOT_ID, ROOM_ID, BOT_ID
 from utils import find_user
 from event_handlers import on_start, on_reaction, on_user_join, on_tip, on_message
 from emote_manager import handle_emote_command, stop_emote
@@ -72,10 +76,8 @@ class BotDefinition:
 
 if __name__ == "__main__":
     try:
-        room_id = os.getenv("HIGHRISE_ROOM_ID", "6871334bd8cf4ac550f0d6f7")
-        token = os.getenv(
-            "HIGHRISE_API_TOKEN",
-            "fda07293a4522efaef4f8e60222a6900c2575f9c05c0336c4c2a77a4502e434a")
+        room_id = ROOM_ID
+        token = BOT_ID
 
         bot = Bot()
         asyncio.run(bot.run(room_id, token))

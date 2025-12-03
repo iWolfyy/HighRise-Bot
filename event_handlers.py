@@ -1,44 +1,23 @@
-from highrise.models import SessionMetadata, User, Reaction, Position, CurrencyItem, Item, GetMessagesRequest
+from highrise import *
+from highrise.webapi import *
+from highrise.models_webapi import *
+from highrise.models import *
 import asyncio
 import random
-import json
-import os
-
-TIPS_FILE = "tips.json"
-
-
-def load_tips():
-    if not os.path.exists(TIPS_FILE):
-        return {}
-    with open(TIPS_FILE, "r") as file:
-        return json.load(file)
-
-
-def save_tips(data):
-    with open(TIPS_FILE, "w") as file:
-        json.dump(data, file, indent=4)
-
-
-def add_tip(username, amount):
-    data = load_tips()
-
-    # If user doesn't exist, initialize
-    if username not in data:
-        data[username] = {"amount": 0, "vip": False}
-
-    # Add amount to user
-    data[username]["amount"] += amount
-
-    # Update VIP status
-    data[username]["vip"] = data[username]["amount"] > 1
-
-    save_tips(data)
+from config import BOT_ID, ROOM_ID, BOT_UID, BOT_START_POSITION, WEBHOOK_URL, VIP_THRESHOLD
+from tip_manager import add_tip
+import aiohttp
+from reminder_manager import start_reminder_loop
 
 
 async def on_start(bot, session_metadata: SessionMetadata) -> None:
     try:
         try:
-            await bot.highrise.walk_to(Position(4, 0, 7.5, "FrontLeft"))
+            position = Position(x=BOT_START_POSITION["x"],
+                                y=BOT_START_POSITION["y"],
+                                z=BOT_START_POSITION["z"],
+                                facing=BOT_START_POSITION["facing"])
+            await bot.highrise.walk_to(position)
         except Exception as e:
             print(f"Error walking to position: {e}")
         try:
@@ -47,6 +26,10 @@ async def on_start(bot, session_metadata: SessionMetadata) -> None:
         except Exception as e:
             print(f"Error sending start message: {e}")
         await asyncio.sleep(0.5)
+        try:
+            asyncio.create_task(start_reminder_loop(bot))
+        except Exception as e:
+            print(f"Error starting reminder loop: {e}")
     except Exception as e:
         print(f"Error in on_start: {e}")
 
@@ -55,11 +38,11 @@ async def on_reaction(bot, user: User, reaction: Reaction,
                       receiver: User) -> None:
     try:
         text_to_emoji = {
-            "göz kırpma": "😉",
-            "dalga": "👋",
-            "tamamdır": "👍",
-            "kalp": "❤️",
-            "alkış": "👏",
+            "wink": "😉",
+            "wave": "👋",
+            "ok": "👍",
+            "heart": "❤️",
+            "clap": "👏",
         }
         try:
             await bot.highrise.chat(
@@ -93,21 +76,6 @@ async def on_user_join(bot, user: User, position: Position) -> None:
                 user.id, f"\n[📢] Type !help in room for Bot Info!")
         except Exception as e:
             print(f"Error sending help whisper: {e}")
-        face = ["FrontRight", "FrontLeft"]
-        try:
-            fp = random.choice(face)
-            _ = [
-                Position(2, 0, 6.5, fp),
-                Position(2, 5, 6.5, fp),
-                Position(6.5, 10, 6, fp),
-            ]
-            __ = random.choice(_)
-            await bot.highrise.teleport(user.id, __)
-        except Exception as e:
-            print(f"Error teleporting user: {e}")
-            await bot.highrise.send_whisper(user.id,
-                                            f"Error teleporting you: {e}")
-        await asyncio.sleep(0.5)
     except Exception as e:
         print(f"Error in on_user_join: {e}")
         try:
@@ -120,36 +88,78 @@ async def on_user_join(bot, user: User, position: Position) -> None:
 async def on_tip(bot, sender: User, receiver: User,
                  tip: CurrencyItem | Item) -> None:
     try:
-        add_tip(sender.username, tip.amount)
+        if receiver.id != BOT_UID:
+            return
+
+        user_data = add_tip(sender.username, tip.amount)
+
         await bot.highrise.send_whisper(
-            sender.id, f"Thanks for the tip of {tip.amount}G!")
+            sender.id, f"💛 Thanks for the tip of {tip.amount}G!")
+
+        if not user_data["vip"]:
+            remaining = VIP_THRESHOLD - user_data["amount"]
+            await bot.highrise.send_whisper(
+                sender.id, f"🌟 Tip {remaining}G more to become a VIP!")
+        else:
+            await bot.highrise.send_whisper(
+                sender.id, "🎉 You're now a VIP! Enjoy your perks!")
+
     except Exception as e:
         print(f"Error in on_tip: {e}")
 
 
 async def on_message(self, user_id: str, conversation_id: str,
                      is_new_conversation: bool) -> None:
-    response = await self.highrise.get_messages(conversation_id)
-    if isinstance(response, GetMessagesRequest.GetMessagesResponse):
-        message = response.messages[0].content
-        if message.lower() == "!help" or message.lower() == "help":
-            await self.highrise.send_message(
-                conversation_id,
-                f"General: 🔔 !help: Show help, !emote: List emotes, !feedback: Send feedback"
-            )
-            await self.highrise.send_message(
-                conversation_id,
-                f"User Actions: 🤝 !invite: Invite, 🎸 !punk: Play guitar, ⚔️ !fight: Fight/heart/uwu, 👏 !clap: Clap/thumbs-up/wave/wink/heart"
-            )
-            await self.highrise.send_message(
-                conversation_id,
-                f"Movement: 🚀 !tp: Teleport to, 📍 !pos: Get position, 🪄 !summon: Summon, 🌍 f1, f2, f3: Predefined teleports, 🔄 reset: Default position"
-            )
-            await self.highrise.send_message(
-                conversation_id,
-                f"Moderator: 🔨 !kick: Kick, 🚫 !ban: Ban, 🔇 !mute: Mute, ✅ !unban: Unban, 🔍 !test: Check privileges"
-            )
-            await self.highrise.send_message(
-                conversation_id,
-                f"Emotes: 🎭 <emote>: Loop (e.g., rest, zombie), 🛑 stop: End emote"
-            )
+    username = "Unknown"
+    try:
+        user_response = await self.webapi.get_user(user_id)
+        username = getattr(user_response.user, "username", None)
+        if not username:
+            username = getattr(user_response.user, "display_name", None)
+        if not username:
+            username = getattr(user_response.user, "name", "Unknown")
+    except Exception as e:
+        print(f"Failed to get user info: {e}")
+
+    try:
+        response = await self.highrise.get_messages(conversation_id)
+    except Exception as e:
+        print(f"Failed to get messages: {e}")
+        return
+
+    message = None
+    try:
+        if isinstance(response, GetMessagesRequest.GetMessagesResponse):
+            if response.messages and len(response.messages) > 0:
+                message = response.messages[0].content
+            else:
+                print("No messages found.")
+                return
+        else:
+            print("Unexpected response type.")
+            return
+    except Exception as e:
+        print(f"Error processing messages: {e}")
+        return
+
+    print(f"Received message from {username}: {message}")
+
+    content = (f"User: {username} (ID: {user_id})\n"
+               f"Conversation ID: {conversation_id}\n"
+               f"New Conversation: {is_new_conversation}\n"
+               f"Message: {message}")
+
+    try:
+        async with aiohttp.ClientSession() as session:
+            webhook_data = {"content": content}
+            async with session.post(WEBHOOK_URL, json=webhook_data) as resp:
+                if resp.status == 204:
+                    print("Message sent to Discord webhook.")
+                    await self.highrise.send_message(
+                        conversation_id,
+                        "✨ Message successfully delivered to @Mr_Wolfy! 🙏 Thanks for hitting us up "
+                    )
+                else:
+                    print(f"Webhook failed: HTTP {resp.status}")
+    except Exception as e:
+        print(f"Error sending webhook: {e}")

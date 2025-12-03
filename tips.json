@@ -1,6 +1,22 @@
 {
-    "Mr_Wolfy": {
-        "amount": 10,
+    "mr_wolfy": {
+        "amount": 2,
+        "vip": false
+    },
+    "_blade_lt": {
+        "amount": 0,
         "vip": true
+    },
+    "pyt.paige03": {
+        "amount": 0,
+        "vip": true
+    },
+    "wolfys_assistant": {
+        "amount": 0,
+        "vip": false
+    },
+    "patelshiv": {
+        "amount": 0,
+        "vip": false
     }
 }

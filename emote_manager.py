@@ -33,8 +33,7 @@ async def stop_emote(bot, user_id: str) -> None:
             task.cancel()
             try:
                 await task
-            except:
-                asyncio.CancelledError:
+            except asyncio.CancelledError:
                 pass
             del bot.active_emote_loops[user_id]
     except Exception as e:
@@ -916,16 +915,3 @@ async def handle_emote_command(bot, user: User, message: str) -> bool:
                 user.id, f"Error starting emote loop for {message}: {e}")
             print(f"Emote loop error: {e}")
         return True
-    if message.lower().lstrip().startswith(("!emote", "-emote")):
-        try:
-            emote_list = "\n".join(f"{name}" for name in emote_map.keys())
-            await bot.highrise.send_whisper(
-                user.id,
-                f"\nAvailable emotes:\n{emote_list}\nType an emote name to start looping it. Type 'stop' to end."
-            )
-            await asyncio.sleep(0.5)
-            return True
-        except Exception as e:
-            print(f"Error sending emote message: {e}")
-        return True
-    return False
