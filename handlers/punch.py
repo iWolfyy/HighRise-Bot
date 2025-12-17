@@ -49,7 +49,7 @@ async def punch(bot: BaseBot, user: User, message: str) -> None:
                     f"\n@{user.username} Punched @{target_username} 👊💥"
                 )
             await bot.highrise.send_emote("emote-superpunch", user.id)
-
+            
             await bot.highrise.send_emote("emote-apart",
                                           target_user.id)
         except Exception as e:
