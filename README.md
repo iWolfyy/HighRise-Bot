@@ -9,8 +9,6 @@
 This bot is a powerful, all-in-one solution designed to enhance your Highrise experience. Whether you need robust moderation tools to keep your room safe, an engaging economy system to reward your visitors, or fun interactive features to keep the party going, this bot has it all.
 
 <img width="1920" height="1440" alt="311_1x_shots_so" src="https://github.com/user-attachments/assets/9e7a18cc-4cfb-418f-9861-6abf54794881" />
-
-
 ---
 
 ## ✨ Key Features
