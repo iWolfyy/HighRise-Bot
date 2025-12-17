@@ -1,4 +1,4 @@
-<img width="1920" height="1440" alt="311_1x_shots_so" src="https://github.com/user-attachments/assets/0047a004-a6c9-4227-b2ec-8729c2e905e3" /># 🤖 Highrise Bot
+# 🤖 Highrise Bot
 
 ![Status](https://img.shields.io/badge/Status-Active-success?style=for-the-badge)
 ![Python](https://img.shields.io/badge/Python-3.10+-blue?style=for-the-badge&logo=python&logoColor=white)
