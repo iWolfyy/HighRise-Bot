@@ -1,0 +1,4 @@
+Flask
+requests
+highrise-bot-sdk
+filelock
