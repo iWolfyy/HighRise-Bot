@@ -146,6 +146,6 @@ Contributions are welcome! If you have ideas for new features or find a bug:
 
 ## 📞 Support
 
-If you encounter any issues or need assistance, please open an issue on GitHub or contact the bot owner in Highrise.
+If you encounter any issues or need assistance, please open an issue on GitHub or contact @Mr_Wolfy in Highrise.
 
 **Enjoy your enhanced Highrise experience!** 🚀
