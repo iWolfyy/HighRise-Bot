@@ -100,7 +100,7 @@ Edit the `config.py` file to customize your bot. **Keep your tokens secret!**
 | `!givevip <user>`   | Manually grants VIP status to a user.                | Mod/Owner  |
 | `!removevip <user>` | Removes VIP status from a user.                      | Mod/Owner  |
 | `!viplist`          | Lists all current VIP users.                         | Mod/Owner  |
-| `!tax`              | Fun command (collects "tax").                        | Everyone   |
+| `!tax`              | Useful command to calculate how much tax is required for gold conversion into bars                        | Everyone   |
 
 ### 🎭 Fun & Emotes
 
