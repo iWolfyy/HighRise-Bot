@@ -87,7 +87,7 @@ Edit the `config.py` file to customize your bot. **Keep your tokens secret!**
 | `!ban <user>`    | Bans a user from the room.                | Mod/Owner  |
 | `!unban <user>`  | Unbans a user.                            | Mod/Owner  |
 | `!mute <user>`   | Mutes a user (temporarily prevents chat). | Mod/Owner  |
-| `!mod <user>`    | Promotes a user to moderator (bot-level). | Owner      |
+| `!mod`    | Displays all Moderator and Owner only commands | Mod/Owner      |
 | `!summon <user>` | Teleports a user to your location.        | Mod/Owner  |
 
 ### 💰 Economy & VIP
