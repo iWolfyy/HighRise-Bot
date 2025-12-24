@@ -8,6 +8,8 @@
 
 This bot is a powerful, all-in-one solution designed to enhance your Highrise experience. Whether you need robust moderation tools to keep your room safe, an engaging economy system to reward your visitors, or fun interactive features to keep the party going, this bot has it all.
 
+<img width="1920" height="1440" alt="311_1x_shots_so" src="https://github.com/user-attachments/assets/9e7a18cc-4cfb-418f-9861-6abf54794881" />
+
 ---
 
 ## ✨ Key Features
@@ -85,7 +87,7 @@ Edit the `config.py` file to customize your bot. **Keep your tokens secret!**
 | `!ban <user>`    | Bans a user from the room.                | Mod/Owner  |
 | `!unban <user>`  | Unbans a user.                            | Mod/Owner  |
 | `!mute <user>`   | Mutes a user (temporarily prevents chat). | Mod/Owner  |
-| `!mod <user>`    | Promotes a user to moderator (bot-level). | Owner      |
+| `!mod`    | Displays all Moderator and Owner only commands | Mod/Owner      |
 | `!summon <user>` | Teleports a user to your location.        | Mod/Owner  |
 
 ### 💰 Economy & VIP
@@ -98,7 +100,7 @@ Edit the `config.py` file to customize your bot. **Keep your tokens secret!**
 | `!givevip <user>`   | Manually grants VIP status to a user.                | Mod/Owner  |
 | `!removevip <user>` | Removes VIP status from a user.                      | Mod/Owner  |
 | `!viplist`          | Lists all current VIP users.                         | Mod/Owner  |
-| `!tax`              | Fun command (collects "tax").                        | Everyone   |
+| `!tax`              | Useful command to calculate how much tax is required for gold conversion into bars                        | Everyone   |
 
 ### 🎭 Fun & Emotes
 
@@ -144,6 +146,6 @@ Contributions are welcome! If you have ideas for new features or find a bug:
 
 ## 📞 Support
 
-If you encounter any issues or need assistance, please open an issue on GitHub or contact the bot owner in Highrise.
+If you encounter any issues or need assistance, please open an issue on GitHub or contact @Mr_Wolfy in Highrise.
 
 **Enjoy your enhanced Highrise experience!** 🚀
