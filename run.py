@@ -5,25 +5,26 @@ from config import BOT_ID, ROOM_ID, BOT_UID
 import random
 import time
 import traceback
+import logging
 from importlib import import_module
 
 class WebServer:
     def __init__(self):
         self.app = Flask(__name__)
-        self.port = random.randint(8000, 9000)  # 🎯 Random available port
+        self.port = random.randint(8000, 9000)
 
         @self.app.route('/')
         def index() -> str:
             return f"Alive on port {self.port}"
 
     def run(self) -> None:
-        # Suppress Flask logging to keep console clean
-        import logging
+        # Heavily suppress Flask logging to save CPU/IO
         log = logging.getLogger('werkzeug')
         log.setLevel(logging.ERROR)
         
         print(f"🌐 WebServer running on port {self.port}")
-        self.app.run(host='0.0.0.0', port=self.port)
+        # Use threaded=True to handle requests efficiently
+        self.app.run(host='0.0.0.0', port=self.port, debug=False, use_reloader=False)
 
     def keep_alive(self):
         t = Thread(target=self.run)
@@ -57,31 +58,32 @@ class RunBot:
                 error_str = str(e)
                 print("\n--- [BOT CRASHED] ---")
                 
-                # Check for DNS/Internet failure (The error you provided)
+                # Check for DNS/Internet failure
                 if "Temporary failure in name resolution" in error_str or "gaierror" in error_str:
-                    print("📡 NETWORK ERROR: Server cannot find the internet (DNS failure).")
-                    print("Retrying in 30 seconds... (Check your hosting provider if this persists)")
-                    time.sleep(30)
+                    print("📡 NETWORK ERROR: DNS failure. Waiting 60s...")
+                    time.sleep(60) # Increased to save CPU
                 
-                # Check for rate limits or session errors
+                # Check for rate limits
                 elif "429" in error_str:
-                    print("⏳ RATE LIMITED: Highrise is blocking connections temporarily.")
-                    print("Waiting 60 seconds before retrying...")
-                    time.sleep(60)
+                    print("⏳ RATE LIMITED: Waiting 90s...")
+                    time.sleep(90) # Increased to satisfy hosting limits
                 
+                # Catch-all for any other error (CRITICAL for CPU protection)
                 else:
-                    print("⚠️ GENERAL ERROR DETECTED:")
-                    traceback.print_exc()
-                    print("Restarting in 5 seconds...")
-                    time.sleep(5)
+                    print(f"⚠️ GENERAL ERROR: {error_str}")
+                    # NEVER set this lower than 20-30 seconds on free hosting
+                    print("Restarting in 30 seconds to prevent CPU spike...")
+                    time.sleep(30) 
                 
                 print("🔄 Attempting to reconnect...\n")
-                continue
 
 if __name__ == "__main__":
-    # 1. Start Web Server (for UptimeRobot/Keep-Alive)
+    # 1. Start Web Server
     WebServer().keep_alive()
     
     # 2. Start the Bot
-    bot_runner = RunBot()
-    bot_runner.run_loop()
+    try:
+        bot_runner = RunBot()
+        bot_runner.run_loop()
+    except KeyboardInterrupt:
+        print("Stopping bot...")
