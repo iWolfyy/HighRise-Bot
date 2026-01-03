@@ -5,6 +5,7 @@ import config  # <--- IMPORT 1: Import the whole config module
 from config import BOT_ID, ROOM_ID # <--- IMPORT 2: Only import constants here
 from event_handlers import on_start, on_reaction, on_user_join, on_tip
 from emote_manager import handle_emote_command, stop_emote
+import logging
 
 # Try to import handle_command, if it doesn't exist, create a dummy function
 try:
@@ -17,8 +18,23 @@ class Bot(BaseBot):
     def __init__(self):
         super().__init__()
         self.active_emote_loops = {} 
+        self.heartbeat_task = None
+
+    async def heartbeat_loop(self):
+        while True:
+            try:
+                loop_count = len(self.active_emote_loops)
+                logging.info(f"💓 Heartbeat: Alive | Active Loops: {loop_count}")
+                await asyncio.sleep(60)
+            except asyncio.CancelledError:
+                break
+            except Exception as e:
+                logging.error(f"Heartbeat error: {e}")
+                await asyncio.sleep(60)
 
     async def on_start(self, session_metadata: SessionMetadata) -> None:
+        logging.info("Bot started!")
+        self.heartbeat_task = asyncio.create_task(self.heartbeat_loop())
         await on_start(self, session_metadata)
 
     async def on_user_join(self, user: User, position: Position | None = None) -> None:
@@ -34,7 +50,7 @@ class Bot(BaseBot):
         pass
 
     async def on_chat(self, user: User, message: str) -> None:
-        print(f"[CHAT] {user.username}: {message}")
+        logging.info(f"[CHAT] {user.username}: {message}")
         try:
             if message.lower().strip() == "stop":
                 await stop_emote(self, user.id)
@@ -47,7 +63,7 @@ class Bot(BaseBot):
             await handle_command(self, user, message)
 
         except Exception as e:
-            print(f"Chat error: {e}")
+            logging.error(f"Chat error: {e}")
             try:
                 await self.highrise.send_whisper(user.id, f"Error: {e}")
             except Exception:
@@ -59,7 +75,7 @@ class Bot(BaseBot):
             if config.quickteleport:
                 await self.highrise.teleport(user.id, pos)
         except Exception as e:
-            print(f"User move error: {e}")
+            logging.error(f"User move error: {e}")
 
     async def run(self, room_id, token):
         definitions = [BotDefinition(self, room_id, token)]
@@ -73,6 +89,7 @@ class BotDefinition:
 
 if __name__ == "__main__":
     try:
+        logging.basicConfig(level=logging.INFO)
         bot = Bot()
         asyncio.run(bot.run(ROOM_ID, BOT_ID))
     except Exception as e:

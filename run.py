@@ -7,6 +7,17 @@ import time
 import traceback
 import logging
 from importlib import import_module
+import sys
+
+# Configure logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s [%(levelname)s] %(message)s',
+    handlers=[
+        logging.FileHandler("bot.log"),
+        logging.StreamHandler(sys.stdout)
+    ]
+)
 
 class WebServer:
     def __init__(self):
@@ -22,7 +33,7 @@ class WebServer:
         log = logging.getLogger('werkzeug')
         log.setLevel(logging.ERROR)
         
-        print(f"🌐 WebServer running on port {self.port}")
+        logging.info(f"🌐 WebServer running on port {self.port}")
         # Use threaded=True to handle requests efficiently
         self.app.run(host='0.0.0.0', port=self.port, debug=False, use_reloader=False)
 
@@ -45,45 +56,51 @@ class RunBot:
                 BotDefinition(bot_instance, self.room_id, self.bot_token)
             ]
         except Exception as e:
-            print(f"❌ Error loading bot class: {e}")
+            logging.error(f"❌ Error loading bot class: {e}")
             raise e
 
     def run_loop(self) -> None:
-        print("🚀 Starting Bot Loop...")
+        logging.info("🚀 Starting Bot Loop...")
         while True:
             try:
                 # Attempt to run the Highrise bot
                 arun(main(self.definitions))
             except Exception as e:
                 error_str = str(e)
-                print("\n--- [BOT CRASHED] ---")
+                logging.error(f"\n--- [BOT CRASHED] ---")
+                logging.error(f"Error details: {error_str}")
                 
                 # Check for DNS/Internet failure
                 if "Temporary failure in name resolution" in error_str or "gaierror" in error_str:
-                    print("📡 NETWORK ERROR: DNS failure. Waiting 60s...")
+                    logging.warning("📡 NETWORK ERROR: DNS failure. Waiting 60s...")
                     time.sleep(60) # Increased to save CPU
                 
                 # Check for rate limits
                 elif "429" in error_str:
-                    print("⏳ RATE LIMITED: Waiting 90s...")
+                    logging.warning("⏳ RATE LIMITED: Waiting 90s...")
                     time.sleep(90) # Increased to satisfy hosting limits
                 
                 # Catch-all for any other error (CRITICAL for CPU protection)
                 else:
-                    print(f"⚠️ GENERAL ERROR: {error_str}")
+                    logging.error(f"⚠️ GENERAL ERROR: {error_str}")
                     # NEVER set this lower than 20-30 seconds on free hosting
-                    print("Restarting in 30 seconds to prevent CPU spike...")
+                    logging.info("Restarting in 30 seconds to prevent CPU spike...")
                     time.sleep(30) 
                 
-                print("🔄 Attempting to reconnect...\n")
+                logging.info("🔄 Attempting to reconnect...\n")
 
 if __name__ == "__main__":
     # 1. Start Web Server
-    WebServer().keep_alive()
+    try:
+        WebServer().keep_alive()
+    except Exception as e:
+        logging.error(f"Failed to start web server: {e}")
     
     # 2. Start the Bot
     try:
         bot_runner = RunBot()
         bot_runner.run_loop()
     except KeyboardInterrupt:
-        print("Stopping bot...")
+        logging.info("Stopping bot...")
+    except Exception as e:
+        logging.critical(f"Fatal error in main loop: {e}")
